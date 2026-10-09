@@ -1,0 +1,43 @@
+:host { display: block; flex-shrink: 0; }
+
+.pagination-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.pag-info {
+  font-size: 12px; color: var(--slate-light);
+}
+
+.pag-controls {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.pag-text {
+  font-size: 13px; color: var(--slate-light);
+}
+
+.pag-arrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  border: 1.5px solid var(--border); border-radius: 7px;
+  background: white; color: var(--navy);
+  transition: border-color 0.15s, color 0.15s;
+}
+.pag-arrow svg { width: 14px; height: 14px; }
+.pag-arrow:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+.pag-arrow:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.pag-input {
+  width: 52px; height: 30px;
+  border: 1.5px solid var(--border); border-radius: 7px;
+  text-align: center; font-size: 13px; font-weight: 600;
+  color: var(--navy); background: white; outline: none;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+.pag-input:focus { border-color: var(--teal); }
+.pag-input::-webkit-outer-spin-button,
+.pag-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }

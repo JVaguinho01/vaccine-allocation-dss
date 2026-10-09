@@ -1,0 +1,281 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+    </div>
+  </div>
+
+  <div class="top-grid">
+
+    <!-- Parameters card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+        </div>
+        <span class="card-title">Model Parameters</span>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="f-group">
+            <label>Region</label>
+            <app-custom-select [(ngModel)]="selectedRegionId" [options]="regionOptions" placeholder="Select a region…"></app-custom-select>
+          </div>
+          <div class="f-group">
+            <label>Vaccines Available</label>
+            <input type="number" [(ngModel)]="totalVaccines" min="1" placeholder="e.g. 500">
+          </div>
+        </div>
+
+        <!-- Campaign Settings -->
+        <div class="campaign-section">
+          <div class="campaign-header">
+            <span class="criteria-label">Campaign Settings</span>
+          </div>
+          <div class="campaign-row">
+            <div class="f-group days-field">
+              <label>Duration (days)</label>
+              <input type="number" [(ngModel)]="campaignDays" min="1" max="365" placeholder="30">
+            </div>
+            <div class="f-group pace-field">
+              <label>Vaccination Pace</label>
+              <div class="pace-grid">
+                @for (p of paceOptions; track p.value) {
+                  <button type="button" class="pace-card" [class.active]="vaccinationPace === p.value"
+                          (click)="vaccinationPace = p.value">
+                    <span class="pace-name">{{ p.label }}</span>
+                    <span class="pace-sub">Storage {{ p.storagePct }}</span>
+                    <span class="pace-sub">Rate {{ p.ratePct }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="criteria-section">
+          <label class="criteria-label">
+            Criteria Priority Order
+            <span class="criteria-hint">drag to reorder — top = most important</span>
+          </label>
+
+          <div cdkDropList (cdkDropListDropped)="onDrop($event)" class="criteria-list">
+            @for (c of criteria; track c.id; let i = $index) {
+              <div cdkDrag class="criteria-item">
+                <span class="rank">{{ i + 1 }}</span>
+                <span class="crit-name">{{ c.name }}</span>
+                <span cdkDragHandle class="drag-handle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="5" r="1" fill="currentColor"/>
+                    <circle cx="15" cy="5" r="1" fill="currentColor"/>
+                    <circle cx="9" cy="12" r="1" fill="currentColor"/>
+                    <circle cx="15" cy="12" r="1" fill="currentColor"/>
+                    <circle cx="9" cy="19" r="1" fill="currentColor"/>
+                    <circle cx="15" cy="19" r="1" fill="currentColor"/>
+                  </svg>
+                </span>
+                <div *cdkDragPlaceholder class="drag-placeholder"></div>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (error) {
+          <div class="error-banner">{{ error }}</div>
+        }
+
+        <button class="btn-run" [class.loading]="loading" [disabled]="loading || !canRun" (click)="run()">
+          @if (loading) {
+            <span class="spinner"></span>
+            <span>Running...</span>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="5 3 19 12 5 21 5 3" fill="white" stroke="none"/>
+            </svg>
+            <span>Run Allocation</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Right column: weights + consistency -->
+    <div class="right-col">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6"  y1="20" x2="6"  y2="14"/>
+            </svg>
+          </div>
+          <span class="card-title">Criteria Weights</span>
+        </div>
+        <div class="card-body">
+          @if (!result) {
+            <div class="empty-weights">
+              <p>Run the model to see criteria weights</p>
+            </div>
+          } @else {
+            <div class="weights-list">
+              @for (w of sortedWeights; track w.criteria) {
+                <div class="weight-row">
+                  <div class="weight-top">
+                    <span class="weight-name">{{ w.criteria }}</span>
+                    <span class="weight-pct">{{ (w.weight * 100).toFixed(1) }}%</span>
+                  </div>
+                  <div class="weight-track">
+                    <div class="weight-bar" [style.width.%]="animatedWeights[w.criteria] || 0"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (result) {
+        <div class="card card-consistency">
+          <div class="card-header">
+            <div class="card-icon" [class.green]="result.consistency.consistent" [class.red]="!result.consistency.consistent">
+              @if (result.consistency.consistent) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              }
+            </div>
+            <span class="card-title">Consistency Check</span>
+          </div>
+          <div class="card-body">
+            <div class="c-stats">
+              <div class="c-stat">
+                <div class="c-val">{{ result.consistency.consistencyIndex }}</div>
+                <div class="c-lbl">Consistency Index</div>
+              </div>
+              <div class="c-stat">
+                <div class="c-val">{{ result.consistency.consistencyRatio }}</div>
+                <div class="c-lbl">Consistency Ratio</div>
+              </div>
+            </div>
+            <div class="c-badge" [class.ok]="result.consistency.consistent" [class.warn]="!result.consistency.consistent">
+              {{ result.consistency.consistent ? '✓ Matrix is consistent — CR < 10%' : '✗ Matrix is inconsistent — CR ≥ 10%' }}
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- Allocation results -->
+  @if (result) {
+    <div class="card results-card">
+      <div class="card-header">
+        <div class="card-icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <span class="card-title">Allocation Results — {{ selectedRegionName }}</span>
+        <span class="results-meta">{{ campaignDays }}d · {{ selectedPaceLabel }}</span>
+        <span class="results-total">{{ result.allocations.length }} institutions</span>
+      </div>
+      @if (result.totalUnallocated > 0) {
+        <div class="unallocated-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>
+            <strong>{{ result.totalUnallocated | number }}</strong> vaccines could not be allocated —
+            total regional capacity ({{ result.totalAllocated | number }} doses) is below the available supply.
+          </span>
+        </div>
+      }
+      @if (unvaccinatedPatients > 0) {
+        <div class="unvaccinated-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/>
+          </svg>
+          <span>
+            <strong>{{ unvaccinatedPatients | number }}</strong> of
+            <strong>{{ result.totalPatients | number }}</strong> patients in this region
+            will not be vaccinated in this campaign — regional rate capacity is insufficient.
+          </span>
+        </div>
+      }
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Institution</th>
+              <th>Final Score</th>
+              <th>Allocated <span class="th-sub">/ active-period cap.</span></th>
+              <th>Completes <span class="th-sub">campaign day</span></th>
+              <th>Restocks</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of result.allocations; track a.institutionId; let i = $index) {
+              <tr class="result-row">
+                <td><span class="rank-badge rank-{{ i + 1 <= 3 ? i + 1 : 'n' }}">{{ i + 1 }}</span></td>
+                <td class="inst-name">{{ a.institutionName }}</td>
+                <td><span class="score-pill">{{ a.finalScore }}</span></td>
+                <td>
+                  <span class="vax-count util-{{ utilizationClass(a.allocatedVaccines, a.effectiveCapacity) }}">
+                    {{ a.allocatedVaccines }}
+                  </span>
+                  <span class="vax-label">doses</span>
+                  <span class="util-pct util-{{ utilizationClass(a.allocatedVaccines, a.effectiveCapacity) }}">
+                    {{ utilizationPct(a.allocatedVaccines, a.effectiveCapacity) }}
+                  </span>
+                  <span class="util-label">occupancy</span>
+                </td>
+                <td>
+                  @if (a.completionDay > 0) {
+                    <span class="completion-day">Day {{ a.completionDay }}</span>
+                  } @else {
+                    <span class="muted">—</span>
+                  }
+                </td>
+                <td>
+                  @if (a.restockCount > 0) {
+                    <span class="restock-badge"
+                          (mouseenter)="showRestockTooltip($event, a.restockDays, a.restockDoses)"
+                          (mouseleave)="hideRestockTooltip()">
+                      ↻ {{ a.restockCount }}×
+                    </span>
+                  } @else {
+                    <span class="muted">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- Restock tooltip -->
+  @if (restockTooltipVisible) {
+    <div class="restock-float"
+         [style.top.px]="restockTooltipTop"
+         [style.left.px]="restockTooltipLeft">
+      <div class="rf-header">Restock schedule</div>
+      @for (day of restockTooltipDays; track day; let ri = $index) {
+        <div class="rf-day">
+          ↻ Restock {{ ri + 1 }} &mdash; Day {{ day }}
+          <span class="rf-doses">{{ restockTooltipDoses | number }} doses</span>
+        </div>
+      }
+    </div>
+  }
+
+</div>

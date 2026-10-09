@@ -1,0 +1,19 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  height: 100vh;
+  background: var(--content-bg);
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 900px) {
+  .main-content { margin-left: 64px; }
+}

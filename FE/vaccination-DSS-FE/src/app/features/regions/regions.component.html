@@ -1,0 +1,58 @@
+<div class="page">
+
+  <div class="page-header">
+    <div><h1>Regions</h1></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="filter-group" style="flex:1;min-width:200px">
+      <span class="filter-label">Search</span>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input [ngModel]="search" (ngModelChange)="search=$event; onSearchChange()" placeholder="Search by name…" class="search-input">
+        @if (search) {
+          <button class="clear-search" (click)="search=''; onSearchChange()">×</button>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <span class="spinner-dark"></span>
+      <span>Loading regions...</span>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="sortable" (click)="toggleSort('name')">
+              Name <span class="sort-icon">{{ sortIcon('name') }}</span>
+            </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of regions; track r.id; let i = $index) {
+              <tr class="table-row">
+                <td class="row-num">{{ page * size + i + 1 }}</td>
+                <td class="region-name">{{ r.name }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-pagination
+        [page]="page" [totalPages]="totalPages"
+        [totalElements]="totalElements" [size]="size"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+  }
+
+</div>

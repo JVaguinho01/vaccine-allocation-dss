@@ -1,0 +1,8 @@
+# IDEs
+.idea/
+*.iml
+.vscode/mcp.json
+
+# OS
+.DS_Store
+Thumbs.db

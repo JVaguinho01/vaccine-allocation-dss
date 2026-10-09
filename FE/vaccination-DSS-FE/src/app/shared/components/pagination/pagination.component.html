@@ -1,0 +1,25 @@
+<div class="pagination-bar">
+  <span class="pag-info">Showing {{ from }}–{{ to }} of {{ totalElements }} results</span>
+  <div class="pag-controls">
+    <button class="pag-arrow" (click)="prev()" [disabled]="page === 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <span class="pag-text">Page</span>
+    <input
+      class="pag-input"
+      type="number"
+      [(ngModel)]="inputPage"
+      (change)="onInputChange()"
+      [min]="1"
+      [max]="totalPages || 1"
+    >
+    <span class="pag-text">of {{ totalPages || 1 }}</span>
+    <button class="pag-arrow" (click)="next()" [disabled]="page >= totalPages - 1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</div>

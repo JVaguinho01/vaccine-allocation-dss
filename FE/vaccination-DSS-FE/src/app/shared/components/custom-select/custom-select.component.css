@@ -1,0 +1,51 @@
+:host { display: block; }
+
+.cs-wrap { position: relative; }
+
+.cs-trigger {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 13px; color: var(--navy); background: #f8fafc;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  text-align: left; font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+}
+.cs-trigger:hover:not(:disabled) { border-color: #cbd5e1; }
+
+.cs-wrap.open .cs-trigger {
+  border-color: var(--teal); background: white;
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+}
+
+.cs-wrap.has-value .cs-trigger { background: white; border-color: #cbd5e1; color: var(--navy); }
+.cs-wrap.has-value .cs-arrow  { color: var(--teal); }
+
+.cs-wrap.disabled .cs-trigger { opacity: 0.55; cursor: not-allowed; }
+
+.cs-value { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-placeholder { color: #94a3b8; }
+
+.cs-arrow {
+  width: 15px; height: 15px; flex-shrink: 0; color: #94a3b8;
+  transition: transform 0.2s, color 0.2s;
+}
+.cs-wrap.open .cs-arrow { transform: rotate(180deg); color: var(--teal); }
+
+.cs-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 300;
+  background: white;
+  border: 1.5px solid var(--teal); border-top: none;
+  border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.1);
+  max-height: 220px; overflow-y: auto;
+}
+
+.cs-option {
+  width: 100%; padding: 9px 12px;
+  text-align: left; background: none; border: none;
+  font-size: 13px; color: #334155; font-family: inherit;
+  transition: background 0.1s;
+  display: block; cursor: pointer;
+}
+.cs-option:hover    { background: #f0fdfa; color: var(--teal); }
+.cs-option.selected { background: #ccfbf1; color: #0d9488; font-weight: 600; }
